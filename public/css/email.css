@@ -1,0 +1,37 @@
+.activeLi {
+    z-index: 2;
+    color: #ffffff;
+    background-color: transparent;
+    border-color: rgba(0,0,0,0.6);
+}
+
+.notAtive, .notActive:hover {
+    background-image: linear-gradient(#484e55, #3a3f44 60%, #313539) !important;
+    background-repeat: no-repeat !important;
+}
+
+#emailPanel {
+    margin-top:20px;
+    margin-bottom:10px;
+}
+
+table#email tr.clickEmailRow td:not(:last-child) {
+    cursor: pointer;   
+}
+
+table#email tr.unread td {
+    font-weight: bold;
+}
+.svg-icon path {
+  fill: #ff0000;
+}
+
+#attachementsList {
+    list-style: none;
+    margin:0;
+    padding:0;
+}
+
+#moveFolder {
+    height:38px;
+}

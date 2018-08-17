@@ -1,0 +1,98 @@
+<?php
+$this->mainMenu()->setActiveItemId('overviewcontact');
+$this->pageBreadcrumbs()->setItems([
+    'Beheer' => $this->url('beheer'),
+    'Contact' => $this->url('beheer/contact'),
+]);
+?>
+<div class="row">
+    <hgroup id="headAdminTitle" class="col-sm-12 col-md-12 col-lg-12">
+        <h1 id="index">E-mail</h1>
+    </hgroup>
+</div>
+<div class="row">
+    <!-- Breadcrumbs -->
+    <div class="col-lg-12 col-md-12 col-sm-12">
+        <?= $this->pageBreadcrumbs()->render(); ?>
+    </div>
+</div>
+<div class="row" style="margin-bottom:5px;">
+    <div class="col-sm-4 col-md-4 col-lg-4">
+
+    </div>
+    <div class="col-sm-8 col-md-8 col-lg-8 text-right">
+        <a href="<?php echo $this->url('beheer/showEmail', ['folder' => $mailbox, 'id' => $pointers['previous']]); ?>" class="btn btn-primary <?php echo ($pointers['previous'] == 0 ? 'disabled' : '') ?>" title="Previous message">
+            <span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span>
+        </a>
+        <a href="<?php echo $this->url('beheer/showEmail', ['folder' => $mailbox, 'id' => $pointers['next']]); ?> " class="btn btn-primary <?php echo ($pointers['next'] == 0 ? 'disabled' : '') ?>" title="Previous message">
+            <span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span>
+        </a>
+        <a href="<?= $this->url('beheer/email', ['folder' => $mailbox, 'action' => 'index']); ?>" class="btn btn-primary" title="folder up">
+            <span class="glyphicon glyphicon-level-up" aria-hidden="true"></span>
+        </a>
+        <a class="btn btn-primary" href="
+           <?php echo $this->url('beheer/email', ['folder' => $mailbox, 'page' => $page, 'action' => 'deleteEmail', 'id' => $emailID]); ?>">
+            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+        </a>
+<!--        <a style="padding-bottom: 11px;padding-top: 5px;" href="<?= $this->url('beheer/manageEmailfolders', ['action' => 'addFolder']); ?>" title="Move to folder" class="btn btn-primary">
+            <img src="/img/icons/folder_move.svg" height="18" class="svg-icon" alt="Move to folder" />
+        </a>-->
+        <select class=" btn btn-primary" id="moveFolder">
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+            <option>4</option>
+            <option>5</option>
+        </select>
+    </div>
+</div>
+<div class="row">
+    <?php if (count($attachments) > 0) { ?>
+        <div class="col-sm-8 col-md-8 col-lg-8">
+        <?php } else { ?>
+            <div class="col-sm-12 col-md-12 col-lg-12">
+            <?php } ?>
+            <table class="table table-condensed">
+                <tr>
+                    <td colspan="2">
+                        <?php echo imap_utf8($emailHeader->subject); ?>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Afzender</th><td><?php echo $emailHeader->from[0]->personal; ?> <?php echo $emailHeader->from[0]->mailbox; ?>@<?php echo $emailHeader->from[0]->host; ?></td>
+                </tr>
+                <tr>
+                    <th>Ontvanger</th><td><?php echo $emailHeader->to[0]->personal; ?> <?php echo $emailHeader->to[0]->mailbox; ?>@<?php echo $emailHeader->to[0]->host; ?> </td>
+                </tr>
+                <tr>
+                    <th>Datum</th><td>
+                        <?php
+                        $dateFromString = strtotime($emailHeader->date);
+                        $receivedDate = date('d-m-Y H:i:s', $dateFromString);
+                        echo $receivedDate;
+                        ?>
+                    </td>
+                </tr>
+            </table> 
+            <iframe id="bodyEmail" frameborder="0" scrolling="no" onload="resizeIframe(this)" style="width:100%; background-color:#fff; font-family: Arial, Verdana, sans-serif; color:#fff;" src="<?php echo $this->url('beheer/showEmailBody', ['folder' => $mailbox, 'id' => $emailID]); ?>">
+            </iframe>
+
+            <script>
+                function resizeIframe(obj) {
+                    var height = obj.contentWindow.document.body.scrollHeight + 50;
+                    obj.style.height = height + 'px';
+                }
+            </script>
+        </div>
+
+        <?php if (count($attachments) > 0) { ?>
+            <div class="col-sm-4 col-md-4 col-lg-4">
+                <h4>Bijlage(s)</h4>
+                <ul id="attachementsList">
+                    <?php foreach ($attachments AS $index => $attachement) { ?>
+                        <li><a href="<?php echo $this->url('beheer/downloadAttachment', ['folder' => $mailbox, 'id' => $emailID, 'attachmentId' => $index]); ?>"><?php echo imap_utf8($attachement['filename']); ?></a></li>
+                    <?php } ?>
+                </ul>
+            </div>
+        <?php } ?>
+    </div>

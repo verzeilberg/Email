@@ -1,0 +1,67 @@
+<?php if ($pagination['totalPages'] > 1) { ?>
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12">
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                <?php if ($pagination['previousPage'] > 0) { ?>
+                    <li>
+                        <a href="<?= $this->url('beheer/email', ['folder' => $folder, 'page'=> 1, 'action' => 'index']); ?>" aria-label="Previous">
+                            <i class="fas fa-fast-backward fa-xs"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="<?= $this->url('beheer/email', ['folder' => $folder, 'page' => $pagination['previousPage'], 'action' => 'index']); ?>" aria-label="Previous">
+                            <i class="fas fa-backward fa-xs"></i>
+                        </a>
+                    </li>
+                    <?php if ($pagination['currentPage'] >= $pagination['pageRange']) { ?>
+                        <li>
+                            <a href="<?= $this->url('beheer/email', ['folder' => $folder, 'page'=> 1, 'action' => 'index']); ?>">1</a>
+                        </li>
+                        <li>
+                            <a href="#"><i class="fas fa-ellipsis-h fa-xs"></i></a>
+                        </li>
+                    <?php } ?>
+                <?php } ?>
+
+
+                <?php foreach ($pagination['pages'] AS $index => $page) { ?>
+
+                    <?php if ($index >= $pagination['pageRangeStart'] && $index <= $pagination['pageRangeEnd']) { ?>
+                        <li <?php echo ($page == $pagination['currentPage'] ? 'class="active"' : '') ?>>
+
+                            <?php if ($page == $pagination['currentPage']) { ?>
+                                <span class="activeLi"><?php echo $page; ?></span>
+                            <?php } else { ?>
+                                <a href="<?= $this->url('beheer/email', ['folder' => $folder, 'page' => $page, 'action' => 'index']); ?>"><?php echo $page; ?></a>
+                            <?php } ?>
+                        </li>
+                    <?php } ?>
+                <?php } ?>
+
+
+                <?php if ($pagination['currentPage'] <= $pagination['endRange']) { ?>
+                    <li>
+                        <span class="notAtive"><i class="fas fa-ellipsis-h fa-xs"></i></span>
+                    </li>
+                    <li>
+                        <a href="<?= $this->url('beheer/email', ['folder' => $folder, 'page' => $pagination['totalPages'], 'action' => 'index']); ?>"><?php echo $pagination['totalPages']; ?></a>
+                    </li>
+                <?php } ?>
+                <?php if ($pagination['nextPage'] <= $pagination['totalPages']) { ?>
+                    <li>
+                        <a href="<?= $this->url('beheer/email', ['folder' => $folder, 'page' => $pagination['nextPage'], 'action' => 'index']); ?>" aria-label="Next">
+                            <i class="fas fa-forward fa-xs"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="<?= $this->url('beheer/email', ['folder' => $folder, 'page' => $pagination['totalPages'], 'action' => 'index']); ?>" aria-label="Previous">
+                            <i class="fas fa-fast-forward fa-xs"></i>
+                        </a>
+                    </li>
+                <?php } ?>
+            </ul>
+        </nav>
+    </div>
+</div>
+<?php } ?>
