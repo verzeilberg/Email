@@ -1,120 +1,137 @@
 <?php
 $this->mainMenu()->setActiveItemId('overviewcontact');
+$this->pageBreadcrumbs()->setLayout('beheer');
 $this->pageBreadcrumbs()->setItems([
     'Beheer' => $this->url('beheer'),
     'Email' => $this->url('beheer/email'),
 ]);
 ?>
-<div class="row">
-    <hgroup id="headAdminTitle" class="col-sm-12 col-md-12 col-lg-12">
-        <h1 id="index">CONTACT BEHEER</h1>
-    </hgroup>
-</div>
-<div class="row">
+    <!-- Page Header -->
+    <div class="row">
+        <h1 class="col">EMAIL BEHEER</h1>
+    </div>
     <!-- Breadcrumbs -->
-    <div class="col-lg-12 col-md-12 col-sm-12">
-        <?= $this->pageBreadcrumbs()->render(); ?>
-    </div>
-</div>
-<div class="row">
-    <div class="col-lg-3 col-md-3 col-sm-3">
-        <h2>Folders</h2>
-        <div class="list-group table-of-contents">
-            <?php foreach ($mailBoxes AS $mailBox) { ?>
-                <a class="list-group-item" href="<?= $this->url('beheer/email', ['folder' => $mailBox['mailbox'], 'action' => 'index']); ?>">
-                    <?php
-                    $mailbox = explode('.', $mailBox['mailbox']);
-                    $totalTab = count($mailbox) - 1;
-                    $spaces = '';
-                    if ($totalTab > 0) {
-                        for ($x = 0; $x <= $totalTab; $x++) {
-                            $spaces .= '&nbsp;&nbsp;';
-                        }
-                    }
-                    $mailbox = trim(end($mailbox));
-                    ?>
-                    <?php echo $spaces; ?><span class="glyphicon glyphicon-folder-close" aria-hidden="true"></span>&nbsp;<?php echo $mailbox; ?> <?php echo ($mailBox['unreadMessages'] > 0 ? '(' . $mailBox['unreadMessages'] . ')' : '') ?> <span class="glyphicon glyphicon-triangle-right"></span>
-                </a>
-                <?php
-            }
-            ?>
+    <div class="row">
+        <div class="col">
+            <?= $this->pageBreadcrumbs()->render(); ?>
         </div>
     </div>
-    <div class="col-lg-9 col-md-9 col-sm-9">
-        <?php
-        $mailboxTitle = explode('.', $mailBoxInfo->Mailbox);
-        $mailboxTitle = end($mailboxTitle);
-        ?>
-        <h2 class="pull-left"><?php echo $mailboxTitle; ?> (<?php echo $mailBoxInfo->Nmsgs; ?>)</h2>
-        <div id="emailPanel" class="pull-right">
-            <a href="<?= $this->url('beheer/manageEmailfolders', ['action' => 'addFolder']); ?>" title="Add folder" class="btn btn-default btn-md">
-                <img src="/img/icons/folder_add.svg" height="17" class="svg-icon" alt="add folder" />
-            </a>
-            <a href="<?= $this->url('beheer/email', ['folder' => $folder, 'action' => 'index']); ?>" title="Refresh folder" class="btn btn-default btn-md">
-                <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
-            </a>
-            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#emptyFolderModal">
-                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-            </button>
-            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#deleteFolderModal">
-                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-            </button>
-        </div>
-        <!-- Pagination -->
-        <?php echo $this->partial('email/partial/pagination.phtml', array('pagination' => $pagination, 'folder' => $folder)); ?>
-
-        <table id="email" class="table table-bordered table-hover table-condensed table-responsive">
-            <tr>
-                <th>Onderwerp</th>
-                <th>Ontvangen op</th>
-                <th>Verzonden door</th>
-                <th>Bijlage</th>
-                <th colspan="2" class="text-center"><span class="glyphicon glyphicon-cog"></span></th>
-            </tr>
-            <?php foreach ($mails AS $mail) { ?>
-                <tr class="clickEmailRow <?php echo ($mail["header"]->Unseen == 'U'? 'unread':''); ?>" data-id="<?php echo $mail["index"]; ?>" data-mailbox="<?php echo $folder ?>">
-                    <?php
-                    $dateFromString = strtotime($mail["header"]->date);
-                    $receivedDate = date('d-m-Y H:i:s', $dateFromString);
-                    ?>
-                    <td>
+    <div class="row">
+        <div class="col-md-auto">
+            <h2>Folders</h2>
+            <div class="list-group table-of-contents">
+                <?php foreach ($mailBoxes AS $mailBox) { ?>
+                    <a class="list-group-item"
+                       href="<?= $this->url('beheer/email', ['folder' => $mailBox['mailbox'], 'action' => 'index']); ?>">
                         <?php
-                        $subject = '';
-                        foreach (imap_mime_header_decode($mail["header"]->subject) AS $subjectPart) {
-                            $subject .= $subjectPart->text;
+                        $mailbox = explode('.', $mailBox['mailbox']);
+                        $totalTab = count($mailbox) - 1;
+                        $spaces = '';
+                        if ($totalTab > 0) {
+                            for ($x = 0; $x <= $totalTab; $x++) {
+                                $spaces .= '&nbsp;&nbsp;';
+                            }
                         }
+                        $mailbox = trim(end($mailbox));
                         ?>
-                        <?php echo $subject ?>
-                    </td>
-                    <td><?php echo $receivedDate; ?></td>
-                    <td><?php echo imap_mime_header_decode($mail["header"]->fromaddress)[0]->text; ?></td>
-                    <td class="text-center"><?php echo ($mail['structure']->parts[0]->parameters[0]->value != NULL && strtolower($mail['structure']->parts[0]->parameters[0]->value) != 'utf-8'? '<span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>':'&nbsp;') ?></td>
-                    <td class="text-center">
-                        <a class="btn btn-primary btn-xs" href="
+                        <?php echo $spaces; ?><span class="glyphicon glyphicon-folder-close" aria-hidden="true"></span>&nbsp;<?php echo $mailbox; ?> <?php echo($mailBox['unreadMessages'] > 0 ? '(' . $mailBox['unreadMessages'] . ')' : '') ?>
+                        <span class="glyphicon glyphicon-triangle-right"></span>
+                    </a>
+                    <?php
+                }
+                ?>
+            </div>
+        </div>
+        <div class="col">
+            <div class="row">
+                <?php
+                $mailboxTitle = explode('.', $mailBoxInfo->Mailbox);
+                $mailboxTitle = end($mailboxTitle);
+                ?>
+                <h2 class="col pull-left"><?php echo $mailboxTitle; ?> (<?php echo $mailBoxInfo->Nmsgs; ?>)</h2>
+            </div>
+            <div class="row">
+                <div id="emailPanel" class="col text-right">
+                    <a href="<?= $this->url('beheer/manageEmailfolders', ['action' => 'addFolder']); ?>"
+                       title="Add folder"
+                       class="btn btn-dark btn-md">
+                        <img src="/img/icons/folder_add.svg" height="17" class="svg-icon" alt="add folder"/>
+                    </a>
+                    <a href="<?= $this->url('beheer/email', ['folder' => $folder, 'action' => 'index']); ?>"
+                       title="Refresh folder" class="btn btn-dark btn-md">
+                        <i class="fas fa-sync-alt"></i>
+                    </a>
+                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#emptyFolderModal">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteFolderModal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <!-- Pagination -->
+                    <?php echo $this->partial('email/partial/pagination.phtml', array('pagination' => $pagination, 'folder' => $folder)); ?>
+
+                    <table id="email" class="table table-dark table-sm table-bordered table-hover table-striped">
+                        <thead class="thead-dark">
+                        <tr>
+                            <th>Onderwerp</th>
+                            <th>Ontvangen op</th>
+                            <th>Verzonden door</th>
+                            <th>Bijlage</th>
+                            <th colspan="2" class="text-center"><i class="fas fa-cogs"></i></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <?php foreach ($mails AS $mail) { ?>
+                            <tr class="clickEmailRow <?php echo($mail["header"]->Unseen == 'U' ? 'unread' : ''); ?>"
+                                data-id="<?php echo $mail["index"]; ?>" data-mailbox="<?php echo $folder ?>">
+                                <?php
+                                $dateFromString = strtotime($mail["header"]->date);
+                                $receivedDate = date('d-m-Y H:i:s', $dateFromString);
+                                ?>
+                                <td>
+                                    <?php
+                                    $subject = '';
+                                    foreach (imap_mime_header_decode($mail["header"]->subject) AS $subjectPart) {
+                                        $subject .= $subjectPart->text;
+                                    }
+                                    ?>
+                                    <?php echo $subject ?>
+                                </td>
+                                <td><?php echo $receivedDate; ?></td>
+                                <td><?php echo imap_mime_header_decode($mail["header"]->fromaddress)[0]->text; ?></td>
+                                <td class="text-center"><?php echo($mail['structure']->parts[0]->parameters[0]->value != NULL && strtolower($mail['structure']->parts[0]->parameters[0]->value) != 'utf-8' ? '<span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>' : '&nbsp;') ?></td>
+                                <td class="text-center">
+                                    <a class="btn btn-danger btn-sm" href="
                            <?php echo $this->url('beheer/email', ['folder' => $folder, 'page' => $page, 'action' => 'deleteEmail', 'id' => $mail["index"]]); ?>">
-                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                        </a>
-                    </td>
-                </tr>
-            <?php } ?>
-        </table>
-        <!-- Pagination -->
-        <?php echo $this->partial('email/partial/pagination.phtml', array('pagination' => $pagination, 'folder' => $folder)); ?>
+                                        <i class="fas fa-trash-alt"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        <?php } ?>
+                        </tbody>
+                    </table>
+                    <!-- Pagination -->
+                    <?php echo $this->partial('email/partial/pagination.phtml', array('pagination' => $pagination, 'folder' => $folder)); ?>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
 
+    <script>
+        $('table#email tr.clickEmailRow td:not(:last-child)').click(function () {
+            var emailID = $(this).parent('tr').data('id');
+            var mailbox = $(this).parent('tr').data('mailbox');
+            window.location.href = "<?php echo $this->url('beheer/showEmail'); ?>/" + mailbox + '/' + emailID;
 
-<script>
-    $('table#email tr.clickEmailRow td:not(:last-child)').click(function () {
-        var emailID = $(this).parent('tr').data('id');
-        var mailbox = $(this).parent('tr').data('mailbox');
-        window.location.href = "<?php echo $this->url('beheer/showEmail'); ?>/" + mailbox + '/' + emailID;
+        });
+    </script>
 
-    });
-</script>
-
-<!-- Confirmation modal delete folder and contents -->
+    <!-- Confirmation modal delete folder and contents -->
 <?php echo $this->partial('email/partial/confirmation-modal-delete-folder.phtml'); ?>
 
-<!-- Confirmation modal delete folder and contents -->
+    <!-- Confirmation modal delete folder and contents -->
 <?php echo $this->partial('email/partial/confirmation-modal-empty-folder.phtml'); ?>
