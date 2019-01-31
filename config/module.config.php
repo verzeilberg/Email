@@ -63,4 +63,9 @@ return [
             ],
         ],
     ],
+    'email_settings' => [
+        'server' => '',
+        'user' => '',
+        'password' => ''
+    ]
 ];

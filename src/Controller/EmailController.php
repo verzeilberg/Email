@@ -6,19 +6,22 @@ use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
 use Zend\View\Model\JsonModel;
 
-class EmailController extends AbstractActionController {
+class EmailController extends AbstractActionController
+{
 
     protected $vhm;
     protected $em;
     protected $emailReaderService;
 
-    public function __construct($vhm, $em, $emailReaderService) {
+    public function __construct($vhm, $em, $emailReaderService)
+    {
         $this->vhm = $vhm;
         $this->em = $em;
         $this->emailReaderService = $emailReaderService;
     }
 
-    public function indexAction() {
+    public function indexAction()
+    {
         $this->layout('layout/beheer');
         $this->vhm->get('headLink')->appendStylesheet('/css/email.css');
         $folder = $this->params()->fromRoute('folder', 'inbox');
@@ -30,23 +33,24 @@ class EmailController extends AbstractActionController {
         $mailBoxInfo = $this->emailReaderService->getMailboxInfo($folder);
 
         return new ViewModel(
-                array(
-            'mails' => $mails,
-            'mailBoxes' => $mailBoxes,
-            'pagination' => $pagination,
-            'folder' => $folder,
-            'mailBoxInfo' => $mailBoxInfo,
-            'page' => $page
-                )
+            array(
+                'mails' => $mails,
+                'mailBoxes' => $mailBoxes,
+                'pagination' => $pagination,
+                'folder' => $folder,
+                'mailBoxInfo' => $mailBoxInfo,
+                'page' => $page
+            )
         );
     }
 
     /**
-     * 
+     *
      * Action to set delete a email
      */
-    public function deleteEmailAction() {
-        $id = (int) $this->params()->fromRoute('id', 0);
+    public function deleteEmailAction()
+    {
+        $id = (int)$this->params()->fromRoute('id', 0);
         $folder = $this->params()->fromRoute('folder', 'inbox');
         $page = $this->params()->fromRoute('page', 1);
         if (empty($id)) {
@@ -63,10 +67,11 @@ class EmailController extends AbstractActionController {
     }
 
     /**
-     * 
+     *
      * Action to set delete a email
      */
-    public function deleteEmailsInFolderAction() {
+    public function deleteEmailsInFolderAction()
+    {
         $folder = $this->params()->fromRoute('folder', 'inbox');
         $page = $this->params()->fromRoute('page', 1);
         if (empty($folder)) {
@@ -82,13 +87,16 @@ class EmailController extends AbstractActionController {
         return $this->redirect()->toRoute('beheer/email', ['folder' => $folder, 'page' => $page]);
     }
 
-    public function showEmailAction() {
+    public function showEmailAction()
+    {
         $this->layout('layout/beheer');
         $this->vhm->get('headLink')->appendStylesheet('/css/email.css');
 
-        $emailID = (int) $this->params()->fromRoute('id', 0);
+        $emailID = (int)$this->params()->fromRoute('id', 0);
         $mailbox = $this->params()->fromRoute('folder', 'inbox');
         $page = $this->params()->fromRoute('page', 1);
+
+        $mailBoxes = $this->emailReaderService->getListMailboxes();
 
         $mailBoxInfo = $this->emailReaderService->getMailboxInfo($mailbox);
         $emailHeader = $this->emailReaderService->getEmailHeader($mailbox, $emailID);
@@ -109,35 +117,38 @@ class EmailController extends AbstractActionController {
         }
 
         return new ViewModel(
-                array(
-            'emailID' => $emailID,
-            'mailbox' => $mailbox,
-            'emailHeader' => $emailHeader,
-            'pointers' => $pointers,
-            'page' => $page,
-            'attachments' => $attachments
-                )
+            array(
+                'emailID' => $emailID,
+                'mailbox' => $mailbox,
+                'emailHeader' => $emailHeader,
+                'pointers' => $pointers,
+                'page' => $page,
+                'attachments' => $attachments,
+                'mailBoxes' => $mailBoxes
+            )
         );
     }
 
-    public function showEmailBodyAction() {
+    public function showEmailBodyAction()
+    {
         $this->layout('layout/iframe');
-        $emailID = (int) $this->params()->fromRoute('id', 0);
+        $emailID = (int)$this->params()->fromRoute('id', 0);
         $mailbox = $this->params()->fromRoute('folder', 'inbox');
         if ($emailID != 0 && !empty($mailbox)) {
             $msg = $this->emailReaderService->getmsg($mailbox, $emailID);
             $emailBody["body"] = $msg['htmlmsg'];
         }
         return new ViewModel(
-                array(
-            'emailID' => $emailID,
-            'mailbox' => $mailbox,
-            'emailBody' => $emailBody
-                )
+            array(
+                'emailID' => $emailID,
+                'mailbox' => $mailbox,
+                'emailBody' => $emailBody
+            )
         );
     }
 
-    public function addFolderAction() {
+    public function addFolderAction()
+    {
         $this->layout('layout/beheer');
         $mailBoxes = $this->emailReaderService->getListMailboxes();
 
@@ -163,13 +174,14 @@ class EmailController extends AbstractActionController {
 
 
         return new ViewModel(
-                array(
-            'mailBoxes' => $mailBoxes
-                )
+            array(
+                'mailBoxes' => $mailBoxes
+            )
         );
     }
 
-    public function deleteFolderAction() {
+    public function deleteFolderAction()
+    {
         $mailbox = $this->params()->fromRoute('folder');
         if (!empty($mailbox)) {
             $result = $this->emailReaderService->deleteFolder($mailbox);
@@ -186,7 +198,8 @@ class EmailController extends AbstractActionController {
         }
     }
 
-    public function downloadFileAction() {
+    public function downloadFileAction()
+    {
 
         $emailID = $this->params()->fromRoute('id');
         $mailbox = $this->params()->fromRoute('folder');
@@ -205,6 +218,25 @@ class EmailController extends AbstractActionController {
         set_time_limit(0);
         echo $dataForFile;
         exit;
+    }
+
+    public function moveEmailToFolderAction()
+    {
+        $errorMessage = '';
+        $currentFolder = $this->params()->fromPost('currentFolder');
+        $destinationFolder = $this->params()->fromPost('destinationFolder');
+        $emailId = $this->params()->fromPost('emailId');
+        $success = $this->emailReaderService->moveEmailToFolder($currentFolder, $emailId, $destinationFolder);
+        if(!$success)
+        {
+            $errorMessage = 'E-mail is niet verplaats, probeer opnieuw!';
+        }
+        return new JsonModel(
+            array(
+                'success' => $success,
+                'errorMessage' => $errorMessage
+            )
+        );
     }
 
 }

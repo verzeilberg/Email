@@ -4,7 +4,8 @@ namespace Email\Service;
 
 use Zend\ServiceManager\ServiceLocatorInterface;
 
-class emailReaderService implements emailReaderServiceInterface {
+class emailReaderService implements emailReaderServiceInterface
+{
 
     // imap server connection
     public $conn;
@@ -12,15 +13,25 @@ class emailReaderService implements emailReaderServiceInterface {
     private $inbox;
     private $msg_cnt;
     // email login credentials
-    private $server = 'imap.zeke.nl';
-    private $user = 'sander@verzeilberg.nl';
-    private $pass = 'Joker512011';
+    private $server;
+    private $user;
+    private $pass;
     private $port = 143; // adjust according to server settings
     //------------------------------------
     private $charset;
     private $htmlmsg;
     private $plainmsg;
     private $attachments = [];
+
+
+    protected $config;
+
+    public function __construct($config) {
+        $this->config = $config;
+        $this->server = $config['email_settings']['server'];
+        $this->user = $config['email_settings']['user'];
+        $this->pass = $config['email_settings']['password'];
+    }
 
     /*
      * Connect to mailbox
@@ -31,7 +42,9 @@ class emailReaderService implements emailReaderServiceInterface {
      * 
      */
 
-    public function connect($inbox = null) {
+    public function connect($inbox = null)
+    {
+
         return imap_open('{' . $this->server . '/notls}' . $inbox, $this->user, $this->pass);
     }
 
@@ -42,7 +55,8 @@ class emailReaderService implements emailReaderServiceInterface {
      * 
      */
 
-    public function getListMailboxes() {
+    public function getListMailboxes()
+    {
         $mailBoxes = [];
         $connection = $this->connect();
         $list = imap_list($connection, '{' . $this->server . '/notls}', "*");
@@ -71,7 +85,8 @@ class emailReaderService implements emailReaderServiceInterface {
      * 
      */
 
-    public function getMailboxInfo($mailbox = 'INBOX') {
+    public function getMailboxInfo($mailbox = 'INBOX')
+    {
         $connection = $this->connect($mailbox);
         $result = imap_mailboxmsginfo($connection);
         $result->Mailbox = str_replace('{' . $this->server . ':' . $this->port . '/imap/notls/user="' . $this->user . '"}', '', $result->Mailbox);
@@ -89,7 +104,8 @@ class emailReaderService implements emailReaderServiceInterface {
      * 
      */
 
-    public function getMailsFromMailBox($mailbox = null, $itemsPage = 10, $currentPage = 1) {
+    public function getMailsFromMailBox($mailbox = null, $itemsPage = 10, $currentPage = 1)
+    {
         $connection = $this->connect($mailbox);
         $this->msg_cnt = imap_num_msg($connection);
 
@@ -122,7 +138,8 @@ class emailReaderService implements emailReaderServiceInterface {
      * 
      */
 
-    public function getEmailStructure($connection, $index) {
+    public function getEmailStructure($connection, $index)
+    {
         $structure = imap_fetchstructure($connection, $index);
         return $structure;
     }
@@ -137,7 +154,8 @@ class emailReaderService implements emailReaderServiceInterface {
      * 
      */
 
-    public function deleteMailMessage($index = null, $mailbox = null) {
+    public function deleteMailMessage($index = null, $mailbox = null)
+    {
         $connection = $this->connect($mailbox);
         $result = imap_delete($connection, $index);
         imap_expunge($connection);
@@ -154,7 +172,8 @@ class emailReaderService implements emailReaderServiceInterface {
      * 
      */
 
-    public function deleteAllMailsInFolder($mailbox = null) {
+    public function deleteAllMailsInFolder($mailbox = null)
+    {
         if (!empty($mailbox)) {
             $connection = $this->connect($mailbox);
             $result = imap_delete($connection, '1:*');
@@ -174,7 +193,8 @@ class emailReaderService implements emailReaderServiceInterface {
      * 
      */
 
-    public function setSeenEmail($connection, $index) {
+    public function setSeenEmail($connection, $index)
+    {
         return imap_setflag_full($connection, $index, "\\Seen \\Flagged", ST_UID);
     }
 
@@ -185,7 +205,8 @@ class emailReaderService implements emailReaderServiceInterface {
      * 
      */
 
-    public function close() {
+    public function close()
+    {
         $this->inbox = array();
         $this->msg_cnt = 0;
         imap_close($this->conn);
@@ -201,7 +222,8 @@ class emailReaderService implements emailReaderServiceInterface {
      * 
      */
 
-    public function retrieve_message($mbox, $messageid) {
+    public function retrieve_message($mbox, $messageid)
+    {
         $message = array();
 
         $header = imap_header($mbox, $messageid);
@@ -237,11 +259,12 @@ class emailReaderService implements emailReaderServiceInterface {
      * 
      */
 
-    public function check_type($structure) { ## CHECK THE TYPE
+    public function check_type($structure)
+    { ## CHECK THE TYPE
         if ($structure->type == 1) {
-            return(true); ## YES THIS IS A MULTI-PART MESSAGE
+            return (true); ## YES THIS IS A MULTI-PART MESSAGE
         } else {
-            return(false); ## NO THIS IS NOT A MULTI-PART MESSAGE
+            return (false); ## NO THIS IS NOT A MULTI-PART MESSAGE
         }
     }
 
@@ -257,7 +280,8 @@ class emailReaderService implements emailReaderServiceInterface {
      * 
      */
 
-    public function createPagination($mailbox = null, $itemsPage = 10, $currentPage = 1, $pageRange = 10) {
+    public function createPagination($mailbox = null, $itemsPage = 10, $currentPage = 1, $pageRange = 10)
+    {
         $connection = $this->connect($mailbox);
         $totalItems = imap_num_msg($connection);
         $totalPages = ceil($totalItems / $itemsPage);
@@ -298,13 +322,15 @@ class emailReaderService implements emailReaderServiceInterface {
         return $pagination;
     }
 
-    public function getEmailHeader($mailbox, $index) {
+    public function getEmailHeader($mailbox, $index)
+    {
         $connection = $this->connect($mailbox);
         $emailHeader = imap_headerinfo($connection, $index);
         return $emailHeader;
     }
 
-    public function addFolder($parentMailbox, $mailboxName) {
+    public function addFolder($parentMailbox, $mailboxName)
+    {
         $connection = $this->connect($parentMailbox);
         if (!empty($parentMailbox)) {
             $newFolder = $parentMailbox . '.' . $mailboxName;
@@ -322,14 +348,16 @@ class emailReaderService implements emailReaderServiceInterface {
         return $result;
     }
 
-    public function deleteFolder($mailbox) {
+    public function deleteFolder($mailbox)
+    {
 
         $connection = $this->connect($mailbox);
         $result = imap_deletemailbox($connection, "{" . $this->server . ":" . $this->port . "}" . $mailbox);
         return $result;
     }
 
-    public function getmsg($mailbox, $mid) {
+    public function getmsg($mailbox, $mid)
+    {
         $mbox = $this->connect($mailbox);
         // HEADER
         $h = imap_header($mbox, $mid);
@@ -351,11 +379,12 @@ class emailReaderService implements emailReaderServiceInterface {
         return $totalMsg;
     }
 
-    public function getpart($mbox, $mid, $p, $partno) {
+    public function getpart($mbox, $mid, $p, $partno)
+    {
         // DECODE DATA
         $data = ($partno) ?
-                imap_fetchbody($mbox, $mid, $partno) : // multipart
-                imap_body($mbox, $mid);  // simple
+            imap_fetchbody($mbox, $mid, $partno) : // multipart
+            imap_body($mbox, $mid);  // simple
         // Any part may be encoded, even plain text messages, so check everything.
         if ($p->encoding == 4)
             $data = quoted_printable_decode($data);
@@ -411,12 +440,28 @@ class emailReaderService implements emailReaderServiceInterface {
                 $this->getpart($mbox, $mid, $p2, $partno . '.' . ($partno0 + 1));  // 1.2, 1.2.1, etc.
         }
     }
-    
-    public function moveEmailToFolder($mailbox, $mid, $newMailbox) {
+
+    /*
+     * Move e-mail to selected e-mail folder
+     *
+     * @var $mailbox connection to imap mailbox
+     * @var $mid email message id
+     * @var $newMailbox destination mailbox
+     *
+     * @return void
+     *
+     */
+    public function moveEmailToFolder($mailbox, $mid, $newMailbox)
+    {
         $connection = $this->connect($mailbox);
-        imap_mail_copy($mbox,'16','Test'); 
-        imap_expunge($mbox); 
-        imap_close($mbox); 
+        $result = imap_mail_move($connection, $mid, $newMailbox);
+        if($result) {
+            imap_expunge($connection);
+        }
+        imap_close($connection);
+
+        return $result;
+
     }
 
 }

@@ -32,15 +32,13 @@ $this->pageBreadcrumbs()->setItems([
            <?php echo $this->url('beheer/email', ['folder' => $mailbox, 'page' => $page, 'action' => 'deleteEmail', 'id' => $emailID]); ?>">
             <i class="fas fa-trash-alt"></i>
         </a>
-<!--        <a style="padding-bottom: 11px;padding-top: 5px;" href="<?= $this->url('beheer/manageEmailfolders', ['action' => 'addFolder']); ?>" title="Move to folder" class="btn btn-primary">
-            <img src="/img/icons/folder_move.svg" height="18" class="svg-icon" alt="Move to folder" />
-        </a>-->
+        <input type="hidden" name="currentFolder" value="<?= $mailbox; ?>"/>
+        <input type="hidden" name="emailId" value="<?= $emailID; ?>"/>
         <select class=" btn btn-dark" id="moveFolder">
-            <option>1</option>
-            <option>2</option>
-            <option>3</option>
-            <option>4</option>
-            <option>5</option>
+            <option value="">--Selecteer mailbox--</option>
+            <?php foreach ($mailBoxes AS $mailBox) { ?>
+                <option value="<?= $mailBox["mailbox"]; ?>"><?= $mailBox["mailbox"]; ?></option>
+            <?php } ?>
         </select>
     </div>
 </div>
@@ -76,6 +74,33 @@ $this->pageBreadcrumbs()->setItems([
                     var height = obj.contentWindow.document.body.scrollHeight + 50;
                     obj.style.height = height + 'px';
                 }
+                $( document ).ready(function() {
+                    $( "select#moveFolder" ).on( "change", function() {
+                        var currentFolder = $("input[name=currentFolder]").val();
+                        var destinationFolder = this.value;
+                        var emailId = $("input[name=emailId]").val();
+                        $.ajax({
+                            type: 'POST',
+                            data: {
+                                currentFolder: currentFolder,
+                                destinationFolder: destinationFolder,
+                                emailId: emailId
+                            },
+                            url: "/beheer/email/<?= $mailbox ?>/<?= $page ?>/moveEmailToFolder",
+                            async: true,
+                            success: function (data) {
+                                if (data.success === true) {
+                                    window.location.href = '/beheer/email/' + destinationFolder;
+
+                                } else {
+                                    alert(data.errorMessage);
+                                }
+                            }
+                        });
+                    });
+                });
+
+
             </script>
         </div>
 

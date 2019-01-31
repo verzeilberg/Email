@@ -17,7 +17,8 @@ class EmailControllerFactory implements FactoryInterface {
         
         $entityManager = $container->get('doctrine.entitymanager.orm_default');
         $vhm = $container->get('ViewHelperManager');
-        $emailReaderService = new emailReaderService();
+        $config = $container->get('config');
+        $emailReaderService = new emailReaderService($config);
         
         return new EmailController($vhm, $entityManager, $emailReaderService);
     }
