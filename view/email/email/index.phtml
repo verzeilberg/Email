@@ -103,7 +103,7 @@ $this->pageBreadcrumbs()->setItems([
                                 </td>
                                 <td><?php echo $receivedDate; ?></td>
                                 <td><?php echo imap_mime_header_decode($mail["header"]->fromaddress)[0]->text; ?></td>
-                                <td class="text-center"><?php echo($mail['structure']->parts[0]->parameters[0]->value != NULL && strtolower($mail['structure']->parts[0]->parameters[0]->value) != 'utf-8' ? '<span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>' : '&nbsp;') ?></td>
+                                <td class="text-center"><?php echo (isset($mail['structure']->parts[0]) && $mail['structure']->parts[0]->parameters[0]->value != NULL && strtolower($mail['structure']->parts[0]->parameters[0]->value) != 'utf-8' ? '<span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>' : '&nbsp;') ?></td>
                                 <td class="text-center">
                                     <a class="btn btn-danger btn-sm" href="
                            <?php echo $this->url('beheer/email', ['folder' => $folder, 'page' => $page, 'action' => 'deleteEmail', 'id' => $mail["index"]]); ?>">

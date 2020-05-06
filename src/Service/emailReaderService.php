@@ -2,7 +2,7 @@
 
 namespace Email\Service;
 
-use Zend\ServiceManager\ServiceLocatorInterface;
+use Laminas\ServiceManager\ServiceLocatorInterface;
 
 class emailReaderService implements emailReaderServiceInterface
 {
@@ -60,7 +60,7 @@ class emailReaderService implements emailReaderServiceInterface
         $mailBoxes = [];
         $connection = $this->connect();
         $list = imap_list($connection, '{' . $this->server . '/notls}', "*");
-        $this->close();
+        $this->close($connection);
         if (is_array($list)) {
             sort($list);
             foreach ($list as $index => $val) {
@@ -124,7 +124,7 @@ class emailReaderService implements emailReaderServiceInterface
                 'structure' => $structure
             );
         }
-        $this->close();
+        $this->close($connection);
         return $in;
     }
 
@@ -205,11 +205,11 @@ class emailReaderService implements emailReaderServiceInterface
      * 
      */
 
-    public function close()
+    public function close($connection)
     {
         $this->inbox = array();
         $this->msg_cnt = 0;
-        imap_close($this->conn);
+        imap_close($connection);
     }
 
     /*
@@ -363,7 +363,7 @@ class emailReaderService implements emailReaderServiceInterface
         $h = imap_header($mbox, $mid);
         // BODY
         $s = imap_fetchstructure($mbox, $mid);
-        if (!$s->parts)  // simple
+        if (!property_exists($s,'parts'))  // simple
             $this->getpart($mbox, $mid, $s, 0);  // pass 0 as part-number
         else {  // multipart: cycle through each part
             foreach ($s->parts as $partno0 => $p)
@@ -397,14 +397,14 @@ class emailReaderService implements emailReaderServiceInterface
         if ($p->parameters)
             foreach ($p->parameters as $x)
                 $params[strtolower($x->attribute)] = $x->value;
-        if ($p->dparameters)
+        if (property_exists($p, 'dparameters'))
             foreach ($p->dparameters as $x)
                 $params[strtolower($x->attribute)] = $x->value;
 
         // ATTACHMENT
         // Any part with a filename is an attachment,
         // so an attached text file (type 0) is not mistaken as the message.
-        if ($params['filename'] || $params['name']) {
+        if (array_key_exists('filename', $params) || array_key_exists('name', $params)) {
             // filename may be given as 'Filename' or 'Name' or both
             $filename = ($params['filename']) ? $params['filename'] : $params['name'];
             // filename may be encoded, so see imap_mime_header_decode()
@@ -435,7 +435,7 @@ class emailReaderService implements emailReaderServiceInterface
         }
 
         // SUBPART RECURSION
-        if ($p->parts) {
+        if (property_exists($p, 'parts')) {
             foreach ($p->parts as $partno0 => $p2)
                 $this->getpart($mbox, $mid, $p2, $partno . '.' . ($partno0 + 1));  // 1.2, 1.2.1, etc.
         }
