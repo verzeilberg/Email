@@ -3,6 +3,7 @@
 namespace Email\Service;
 
 use Laminas\ServiceManager\ServiceLocatorInterface;
+use function imap_headerinfo;
 
 class emailReaderService implements emailReaderServiceInterface
 {
@@ -360,7 +361,7 @@ class emailReaderService implements emailReaderServiceInterface
     {
         $mbox = $this->connect($mailbox);
         // HEADER
-        $h = imap_header($mbox, $mid);
+        $h = imap_headerinfo($mbox, $mid);
         // BODY
         $s = imap_fetchstructure($mbox, $mid);
         if (!property_exists($s,'parts'))  // simple

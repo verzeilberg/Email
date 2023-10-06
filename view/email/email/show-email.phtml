@@ -1,117 +1,133 @@
-<?php
-$this->mainMenu()->setActiveItemId('overviewcontact');
-$this->pageBreadcrumbs()->setLayout('beheer');
-$this->pageBreadcrumbs()->setItems([
-    'Beheer' => $this->url('beheer'),
-    'E-mail' => $this->url('beheer/email'),
-]);
-?>
-<!-- Page Header -->
-<div class="row">
-    <h1 class="col">E-MAIL</h1>
-</div>
-<!-- Breadcrumbs -->
-<div class="row">
-    <div class="col">
-        <?= $this->pageBreadcrumbs()->render(); ?>
-    </div>
-</div>
-<!-- Page header options -->
-<div class="row mb-2">
-    <div class="col text-right">
-        <a href="<?php echo $this->url('beheer/showEmail', ['folder' => $mailbox, 'id' => $pointers['previous']]); ?>" class="btn btn-dark <?php echo ($pointers['previous'] == 0 ? 'disabled' : '') ?>" title="Previous message">
-            <i class="fas fa-caret-square-left"></i>
-        </a>
-        <a href="<?php echo $this->url('beheer/showEmail', ['folder' => $mailbox, 'id' => $pointers['next']]); ?> " class="btn btn-dark <?php echo ($pointers['next'] == 0 ? 'disabled' : '') ?>" title="NExt message">
-            <i class="fas fa-caret-square-right"></i>
-        </a>
-        <a href="<?= $this->url('beheer/email', ['folder' => $mailbox, 'action' => 'index']); ?>" class="btn btn-dark" title="folder up">
-            <i class="fas fa-level-up-alt"></i>
-        </a>
-        <a class="btn btn-danger" href="
-           <?php echo $this->url('beheer/email', ['folder' => $mailbox, 'page' => $page, 'action' => 'deleteEmail', 'id' => $emailID]); ?>">
-            <i class="fas fa-trash-alt"></i>
-        </a>
-        <input type="hidden" name="currentFolder" value="<?= $mailbox; ?>"/>
-        <input type="hidden" name="emailId" value="<?= $emailID; ?>"/>
-        <select class=" btn btn-dark" id="moveFolder">
-            <option value="">--Selecteer mailbox--</option>
-            <?php foreach ($mailBoxes AS $mailBox) { ?>
-                <option value="<?= $mailBox["mailbox"]; ?>"><?= $mailBox["mailbox"]; ?></option>
-            <?php } ?>
-        </select>
-    </div>
-</div>
-<div class="row">
-        <div class="col">
-            <table class="table table-dark table-sm table-bordered table-hover table-striped">
-                <tr>
-                    <td colspan="2">
-                        <?php echo imap_utf8($emailHeader->subject); ?>
-                    </td>
-                </tr>
-                <tr>
-                    <th>Afzender</th><td><?php echo $emailHeader->from[0]->personal; ?> <?php echo $emailHeader->from[0]->mailbox; ?>@<?php echo $emailHeader->from[0]->host; ?></td>
-                </tr>
-                <tr>
-                    <th>Ontvanger</th><td><?php echo $emailHeader->to[0]->personal; ?> <?php echo $emailHeader->to[0]->mailbox; ?>@<?php echo $emailHeader->to[0]->host; ?> </td>
-                </tr>
-                <tr>
-                    <th>Datum</th><td>
-                        <?php
-                        $dateFromString = strtotime($emailHeader->date);
-                        $receivedDate = date('d-m-Y H:i:s', $dateFromString);
-                        echo $receivedDate;
-                        ?>
-                    </td>
-                </tr>
-            </table> 
-            <iframe id="bodyEmail" frameborder="0" scrolling="no" onload="resizeIframe(this)" style="width:100%; background-color:#fff; font-family: Arial, Verdana, sans-serif; color:#fff;" src="<?php echo $this->url('beheer/showEmailBody', ['folder' => $mailbox, 'id' => $emailID]); ?>">
-            </iframe>
+<div class="container-fluid pt-4 px-4">
+    <div class="row g-4">
+        <div class="col-sm-12 col-md-12 col-xl-12">
+            <div class="bg-secondary rounded  p-4">
+                <div class="row g-4">
+                    <h2 class="col-sm-12 col-md-12 col-xl-12 mb-4">E-mail</h2>
+                </div>
+                <div class="row mb-2">
+                    <div class="col text-end">
+                        <a href="<?php echo $this->url('beheer/showEmail',
+                            ['folder' => $mailbox, 'id' => $pointers['previous']]); ?>"
+                           class="btn btn-info <?php echo($pointers['previous'] == 0 ? 'disabled' : '') ?>"
+                           title="Previous message">
+                            <i class="fas fa-caret-square-left"></i>
+                        </a>
+                        <a href="<?php echo $this->url('beheer/showEmail',
+                            ['folder' => $mailbox, 'id' => $pointers['next']]); ?> "
+                           class="btn btn-info <?php echo($pointers['next'] == 0 ? 'disabled' : '') ?>"
+                           title="NExt message">
+                            <i class="fas fa-caret-square-right"></i>
+                        </a>
+                        <a href="<?= $this->url('beheer/email', ['folder' => $mailbox, 'action' => 'index']); ?>"
+                           class="btn btn-success" title="folder up">
+                            <i class="fas fa-level-up-alt"></i>
+                        </a>
+                        <a class="btn btn-danger" href="
+           <?php echo $this->url('beheer/email',
+                            ['folder' => $mailbox, 'page' => $page, 'action' => 'deleteEmail', 'id' => $emailID]); ?>">
+                            <i class="fas fa-trash-alt"></i>
+                        </a>
+                        <input type="hidden" name="currentFolder" value="<?= $mailbox; ?>"/>
+                        <input type="hidden" name="emailId" value="<?= $emailID; ?>"/>
 
-            <script>
-                function resizeIframe(obj) {
-                    var height = obj.contentWindow.document.body.scrollHeight + 50;
-                    obj.style.height = height + 'px';
-                }
-                $( document ).ready(function() {
-                    $( "select#moveFolder" ).on( "change", function() {
-                        var currentFolder = $("input[name=currentFolder]").val();
-                        var destinationFolder = this.value;
-                        var emailId = $("input[name=emailId]").val();
-                        $.ajax({
-                            type: 'POST',
-                            data: {
-                                currentFolder: currentFolder,
-                                destinationFolder: destinationFolder,
-                                emailId: emailId
-                            },
-                            url: "/beheer/email/<?= $mailbox ?>/<?= $page ?>/moveEmailToFolder",
-                            async: true,
-                            success: function (data) {
-                                if (data.success === true) {
-                                    window.location.href = '/beheer/email/' + destinationFolder;
+                    </div>
+                    <div class="col">
+                        <select class="form-select" id="moveFolder">
+                            <option value="">--Selecteer mailbox--</option>
+                            <?php foreach ($mailBoxes as $mailBox) { ?>
+                                <option value="<?= $mailBox["mailbox"]; ?>"><?= $mailBox["mailbox"]; ?></option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <table class="table table-dark table-sm table-bordered table-hover table-striped">
+                            <tr>
+                                <td colspan="2">
+                                    <?php echo imap_utf8($emailHeader->subject); ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Afzender</th>
+                                <td><?php echo $emailHeader->from[0]->personal; ?> <?php echo $emailHeader->from[0]->mailbox; ?>
+                                    @<?php echo $emailHeader->from[0]->host; ?></td>
+                            </tr>
+                            <tr>
+                                <th>Ontvanger</th>
+                                <td><?php echo $emailHeader->to[0]->personal; ?> <?php echo $emailHeader->to[0]->mailbox; ?>
+                                    @<?php echo $emailHeader->to[0]->host; ?> </td>
+                            </tr>
+                            <tr>
+                                <th>Datum</th>
+                                <td>
+                                    <?php
+                                    $dateFromString = strtotime($emailHeader->date);
+                                    $receivedDate = date('d-m-Y H:i:s', $dateFromString);
+                                    echo $receivedDate;
+                                    ?>
+                                </td>
+                            </tr>
+                        </table>
+                        <iframe id="bodyEmail" frameborder="0" scrolling="no" onload="resizeIframe(this)"
+                                style="width:100%; background-color:#fff; font-family: Arial, Verdana, sans-serif; color:#fff;"
+                                src="<?php echo $this->url('beheer/showEmailBody',
+                                    ['folder' => $mailbox, 'id' => $emailID]); ?>">
+                        </iframe>
 
-                                } else {
-                                    alert(data.errorMessage);
-                                }
+                        <script>
+                            function resizeIframe(obj) {
+                                var height = obj.contentWindow.document.body.scrollHeight + 50;
+                                obj.style.height = height + 'px';
                             }
-                        });
-                    });
-                });
+
+                            $(document).ready(function () {
+                                $("select#moveFolder").on("change", function () {
+                                    var currentFolder = $("input[name=currentFolder]").val();
+                                    var destinationFolder = this.value;
+                                    var emailId = $("input[name=emailId]").val();
+                                    $.ajax({
+                                        type: 'POST',
+                                        data: {
+                                            currentFolder: currentFolder,
+                                            destinationFolder: destinationFolder,
+                                            emailId: emailId
+                                        },
+                                        url: "/beheer/email/<?= $mailbox ?>/<?= $page ?>/moveEmailToFolder",
+                                        async: true,
+                                        success: function (data) {
+                                            if (data.success === true) {
+                                                window.location.href = '/beheer/email/' + destinationFolder;
+
+                                            } else {
+                                                alert(data.errorMessage);
+                                            }
+                                        }
+                                    });
+                                });
+                            });
 
 
-            </script>
-        </div>
+                        </script>
+                    </div>
 
-        <?php if (count($attachments) > 0) { ?>
-            <div class="col">
-                <h4>Bijlage(s)</h4>
-                <ul id="attachementsList">
-                    <?php foreach ($attachments AS $index => $attachement) { ?>
-                        <li><a href="<?php echo $this->url('beheer/downloadAttachment', ['folder' => $mailbox, 'id' => $emailID, 'attachmentId' => $index]); ?>"><?php echo imap_utf8($attachement['filename']); ?></a></li>
+                    <?php if (count($attachments) > 0) { ?>
+                        <div class="col">
+                            <h4>Bijlage(s)</h4>
+                            <ul id="attachementsList">
+                                <?php foreach ($attachments as $index => $attachement) { ?>
+                                    <li><a href="<?php echo $this->url('beheer/downloadAttachment', [
+                                            'folder' => $mailbox,
+                                            'id' => $emailID,
+                                            'attachmentId' => $index
+                                        ]); ?>"><?php echo imap_utf8($attachement['filename']); ?></a></li>
+                                <?php } ?>
+                            </ul>
+                        </div>
                     <?php } ?>
-                </ul>
+                </div>
             </div>
-        <?php } ?>
+        </div>
     </div>
+</div>

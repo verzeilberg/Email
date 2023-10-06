@@ -1,18 +1,16 @@
 <!-- Confirmation modal delete folder and contents -->
-<div class="modal fade" id="emptyFolderModal" tabindex="-1" role="dialog" aria-labelledby="emptyFolderModalTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content bg-dark">
+<div class="modal fade" id="emptyFolderModal" tabindex="-1" aria-labelledby="deleteEmailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLongTitle">Delete all e-mails in this folder</h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <h1 class="modal-title fs-5 text-primary" id="deleteEmailsModalLabel">Delete all e-mails in this folder</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 Delete all e-mails in folder?
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
                 <a href="<?= $this->url('beheer/email', ['folder' => $folder, 'action' => 'deleteEmailsInFolder']); ?>" title="Empty folder" class="btn btn-success btn-md">
                     Yes
                 </a>

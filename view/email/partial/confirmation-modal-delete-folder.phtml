@@ -1,18 +1,16 @@
 <!-- Confirmation modal delete folder and contents -->
-<div class="modal fade" id="deleteFolderModal" tabindex="-1" role="dialog" aria-labelledby="deleteFolderModalTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content bg-dark">
+<div class="modal fade" id="deleteFolderModal" tabindex="-1" aria-labelledby="deleteFolderModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLongTitle">Delete folder and it's content</h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <h5 class="modal-title fs-5 text-primary" id="deleteFolderModalLabel">Delete folder and it's content</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 Delete folder and all of it's contents?
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">No</button>
                 <a href="<?= $this->url('beheer/email', ['folder' => $folder, 'page' => 1, 'action' => 'deleteFolder']); ?>" title="Delete folder" class="btn btn-success btn-md">
                     Yes
                 </a>

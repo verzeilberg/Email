@@ -24,6 +24,7 @@ class EmailController extends AbstractActionController
     {
         $this->layout('layout/beheer');
         $this->vhm->get('headLink')->appendStylesheet('/css/email.css');
+        $this->vhm->get('headScript')->appendFile('/js/email.js');
         $folder = $this->params()->fromRoute('folder', 'inbox');
         $page = $this->params()->fromRoute('page', 1);
 
