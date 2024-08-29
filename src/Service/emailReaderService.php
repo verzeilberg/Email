@@ -2,8 +2,8 @@
 
 namespace Email\Service;
 
-use Laminas\ServiceManager\ServiceLocatorInterface;
 use function imap_headerinfo;
+use function imap_open;
 
 class emailReaderService implements emailReaderServiceInterface
 {
@@ -36,24 +36,23 @@ class emailReaderService implements emailReaderServiceInterface
 
     /*
      * Connect to mailbox
-     * 
+     *
      * @var $inbox inbox to connect to
-     * 
+     *
      * @return resource
-     * 
+     *
      */
 
     public function connect($inbox = null)
     {
-
         return imap_open('{' . $this->server . '/notls}' . $inbox, $this->user, $this->pass);
     }
 
     /*
      * Get mailboxes
-     * 
+     *
      * @return array
-     * 
+     *
      */
 
     public function getListMailboxes()
@@ -79,11 +78,11 @@ class emailReaderService implements emailReaderServiceInterface
 
     /*
      * Get mailbox info
-     * 
+     *
      * @var $connection connection to mailbox
-     * 
+     *
      * @return object
-     * 
+     *
      */
 
     public function getMailboxInfo($mailbox = 'INBOX')
@@ -96,13 +95,13 @@ class emailReaderService implements emailReaderServiceInterface
 
     /*
      * Get e-mails form the specified e-mail box
-     * 
+     *
      * @var $mailbox selected mailbox
      * @var $itemsPage how many items to show on page
      * @var $currentPage current page
-     * 
+     *
      * @return array
-     * 
+     *
      */
 
     public function getMailsFromMailBox($mailbox = null, $itemsPage = 10, $currentPage = 1)
@@ -131,12 +130,12 @@ class emailReaderService implements emailReaderServiceInterface
 
     /*
      * Get structure of the e-mail
-     * 
+     *
      * @var $connection connection to imap mailbox
      * @var $index id of the e-mail message
-     * 
+     *
      * @return string
-     * 
+     *
      */
 
     public function getEmailStructure($connection, $index)
@@ -147,12 +146,12 @@ class emailReaderService implements emailReaderServiceInterface
 
     /*
      * Get e-mail message flag to delete and delete message
-     * 
+     *
      * @var $index email message id
      * @var $mailbox connection to imap mailbox
-     * 
+     *
      * @return string
-     * 
+     *
      */
 
     public function deleteMailMessage($index = null, $mailbox = null)
@@ -165,12 +164,12 @@ class emailReaderService implements emailReaderServiceInterface
 
     /*
      * Get e-mail message flag to delete and delete message
-     * 
+     *
      * @var $index email message id
      * @var $mailbox connection to imap mailbox
-     * 
+     *
      * @return string
-     * 
+     *
      */
 
     public function deleteAllMailsInFolder($mailbox = null)
@@ -186,12 +185,12 @@ class emailReaderService implements emailReaderServiceInterface
 
     /*
      * Set the flag of the e-mail to read
-     * 
+     *
      * @var $connection connection to imap mailbox
      * @var $index id of the e-mail message
-     * 
+     *
      * @return boolean
-     * 
+     *
      */
 
     public function setSeenEmail($connection, $index)
@@ -201,9 +200,9 @@ class emailReaderService implements emailReaderServiceInterface
 
     /*
      * Close the connection to the imap server
-     * 
+     *
      * @return void
-     * 
+     *
      */
 
     public function close($connection)
@@ -215,12 +214,12 @@ class emailReaderService implements emailReaderServiceInterface
 
     /*
      * Set the flag of the e-mail to read
-     * 
+     *
      * @var $mbox connection to imap mailbox
      * @var $messageid id of the e-mail message
-     * 
+     *
      * @return string
-     * 
+     *
      */
 
     public function retrieve_message($mbox, $messageid)
@@ -253,11 +252,11 @@ class emailReaderService implements emailReaderServiceInterface
 
     /*
      * Check if the message is a multi part or not
-     * 
+     *
      * @var $structure structure of the e-mail message
-     * 
+     *
      * @return boolean
-     * 
+     *
      */
 
     public function check_type($structure)
@@ -271,14 +270,14 @@ class emailReaderService implements emailReaderServiceInterface
 
     /*
      * Create pagination
-     * 
+     *
      * @var $mailbox mailbox to use pagination
      * @var $itemsPage how many e mails a page
      * @var $currentPage current page
      * @var $pageRange how many pagination itmes show on page
-     * 
+     *
      * @return array
-     * 
+     *
      */
 
     public function createPagination($mailbox = null, $itemsPage = 10, $currentPage = 1, $pageRange = 10)
